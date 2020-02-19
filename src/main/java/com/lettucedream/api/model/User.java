@@ -5,20 +5,24 @@ import com.lettucedream.api.model.enums.AccessLevel;
 import com.lettucedream.api.model.enums.AttendaneStatus;
 import com.lettucedream.api.model.enums.State;
 import com.lettucedream.api.util.StringPrefixedSequenceIdGenerator;
+// import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+
+
 
 import javax.persistence.*;
 import java.sql.Date;
 import java.util.List;
-import java.util.Set;
+
+
 
 
 @Entity
+// Lombok data can be used to autogenerate getter setters
+// @Data
 @Table (name ="users")
 public class User {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "emp_seq")
     @GenericGenerator(
@@ -40,9 +44,8 @@ public class User {
     private String city;
     private State state;
     private int zipCode;
-
     private AttendaneStatus attendaneStatus = AttendaneStatus.COMPLETE;
-
+    private Date lastLogin = new Date(System.currentTimeMillis());
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Attendance> attandance ;
