@@ -1,6 +1,6 @@
 package com.lettucedream.api.service.impl;
 
-import com.lettucedream.api.dao.UserRepository;
+import com.lettucedream.api.repository.UserRepository;
 import com.lettucedream.api.model.User;
 import com.lettucedream.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

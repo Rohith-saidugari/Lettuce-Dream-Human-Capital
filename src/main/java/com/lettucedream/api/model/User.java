@@ -1,11 +1,12 @@
 package com.lettucedream.api.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.lettucedream.api.model.enums.AccessLevel;
+import com.lettucedream.api.model.enums.RoleType;
 import com.lettucedream.api.model.enums.AttendaneStatus;
 import com.lettucedream.api.model.enums.State;
 import com.lettucedream.api.util.StringPrefixedSequenceIdGenerator;
 // import lombok.Data;
+import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
@@ -14,16 +15,16 @@ import org.hibernate.annotations.Parameter;
 import javax.persistence.*;
 import java.sql.Date;
 import java.util.List;
-
-
+import java.util.Set;
 
 
 @Entity
 // Lombok data can be used to autogenerate getter setters
-// @Data
+@Data
 @Table (name ="users")
 public class User {
     @Id
+    @Column(name="user_id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "emp_seq")
     @GenericGenerator(
             name = "emp_seq",
@@ -36,7 +37,7 @@ public class User {
     private String firstName;
     private String lastName;
     private Date dateOfBirth;
-    private AccessLevel accessLevel;
+
     private long phoneNumber;
     private String password;
     // TO DO add organization (fraternity)
@@ -50,9 +51,28 @@ public class User {
     @JsonManagedReference
     private List<Attendance> attandance ;
 
+    /*@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JoinTable(name="user_role",joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set roles;
 
 
-    public String getUser_id() {
+
+    public Set getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set roles) {
+        this.roles = roles;
+    }
+
+    public User() {
+    }
+
+
+
+
+
+   /* public String getUser_id() {
         return user_id;
     }
 
@@ -87,13 +107,7 @@ public class User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public AccessLevel getAccessLevel() {
-        return accessLevel;
-    }
 
-    public void setAccessLevel(AccessLevel accessLevel) {
-        this.accessLevel = accessLevel;
-    }
 
     public long getPhoneNumber() {
         return phoneNumber;
@@ -158,4 +172,20 @@ public class User {
     public void setAttendaneStatus(AttendaneStatus attendaneStatus) {
         this.attendaneStatus = attendaneStatus;
     }
+
+    public Date getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Date lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public Set getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set roles) {
+        this.roles = roles;
+    }*/
 }

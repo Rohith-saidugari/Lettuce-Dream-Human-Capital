@@ -3,6 +3,7 @@ package com.lettucedream.api.controller;
 
 import com.lettucedream.api.model.User;
 import com.lettucedream.api.model.enums.AttendaneStatus;
+import com.lettucedream.api.responseEntities.UserCreated;
 import com.lettucedream.api.service.UserService;
 import com.lettucedream.api.util.CustomErrorType;
 import com.lettucedream.api.util.ZXingHelper;
@@ -17,15 +18,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.sql.Date;
-import java.util.Collections;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/admin/")
 public class UserController {
 
     public static final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -34,17 +35,11 @@ public class UserController {
     UserService UserService;
     @Autowired
     ZXingHelper zXingHelper;
+    @Autowired
+    CustomErrorType customErrorType;
+    @Autowired
+    UserCreated userCreated;
 
-    //Get all users
-    @RequestMapping(value = "/users", method = RequestMethod.GET)
-
-    public ResponseEntity<List<User>> listAllUsers() {
-        List<User> users = UserService.getAll();
-        if (users.isEmpty()) {
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
-    }
 
 
     // Create user Either returns Image or Error message
@@ -52,24 +47,21 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder, HttpServletResponse response) throws IOException {
         logger.info("Creating User : {}", user);
         if (UserService.isUserExist(user)) {
-            logger.error("Unable to create. A User with name {}  {} phone number {} already exist", user.getFirstName(),user.getLastName(),user.getPhoneNumber());
-            return new ResponseEntity(new CustomErrorType("Unable to create. A User with following details already exist : Full name:" +
-                    user.getFirstName()+" "+user.getLastName()+", Date Of Birth :"+user.getDateOfBirth() +", Phone Number :"+user.getPhoneNumber() +" user id :"
-                    +UserService.getByNameBirthday(user.getFirstName(),user.getLastName(),user.getDateOfBirth(),user.getPhoneNumber()).getUser_id() ),HttpStatus.CONFLICT);
+            logger.error("Unable to create. A User with name {}  {} phone number {} already exist", user.getFirstName(), user.getLastName(), user.getPhoneNumber());
+            customErrorType.setErrorMessage("Unable to create. A User with following details already exist : Full name:" +
+                    user.getFirstName() + " " + user.getLastName() + ", Date Of Birth :" + user.getDateOfBirth() + ", Phone Number :" + user.getPhoneNumber() + " user id :"
+                    + UserService.getByNameBirthday(user.getFirstName(), user.getLastName(), user.getDateOfBirth(), user.getPhoneNumber()).getUser_id());
+            return ResponseEntity.status(HttpStatus.CONFLICT).
+                    body(customErrorType);
         }
-        String id =UserService.addUser(user).getUser_id();
+        String id = UserService.addUser(user).getUser_id();
         HttpHeaders headers = new HttpHeaders();
+        userCreated.SetUserCreatedValues(id,Base64.getEncoder().encodeToString(zXingHelper.getBarCodeImage(id, 500, 100)));
         headers.setLocation(ucBuilder.path("/api/user/{id}").buildAndExpand(user.getUser_id()).toUri());
-        response.setContentType("image/png");
-        response.setHeader("headers",id);
-        OutputStream outputStream = response.getOutputStream();
-        outputStream.write(zXingHelper.getBarCodeImage(id, 500, 100));
-        outputStream.flush();
-        outputStream.close();
         return ResponseEntity.ok()
                 .headers(headers)
-                .body(zXingHelper.getBarCodeImage(id, 500, 100));
-        //return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+                .body(userCreated);
+
     }
 
 
@@ -83,8 +75,9 @@ public class UserController {
 
         if (currentUser == null) {
             logger.error("Unable to update. User with id {} not found.", id);
-            return new ResponseEntity(new CustomErrorType("Unable to upate. User with id " + id + " not found."),
-                    HttpStatus.NOT_FOUND);
+            customErrorType.setErrorMessage("Unable to upate. User with id " + id + " not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(customErrorType.getErrorMessage());
         }
         //Cannot Change Name Date of Birth
         currentUser.setPhoneNumber(user.getPhoneNumber());
@@ -97,6 +90,26 @@ public class UserController {
     }
 
 
+    //Get all users
+    @RequestMapping(value = "/users", method = RequestMethod.GET)
+
+    public ResponseEntity<List<User>> listAllUsers() {
+        List<User> users = UserService.getAll();
+        if (users.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
+    }
+
+
+
+
+
+
+
+
+
+    //  Below Should go into User Attandance controller
     // Verify user ID
 
     //TODO need to change response body content

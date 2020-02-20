@@ -1,4 +1,4 @@
-package com.lettucedream.api.dao;
+package com.lettucedream.api.repository;
 
 import com.lettucedream.api.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

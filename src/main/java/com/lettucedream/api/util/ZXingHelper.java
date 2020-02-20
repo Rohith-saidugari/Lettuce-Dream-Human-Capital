@@ -24,6 +24,7 @@ public class ZXingHelper {
             hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
             Writer writer = new Code128Writer();
             BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.CODE_128, width, height);
+
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "png", byteArrayOutputStream);
             return byteArrayOutputStream.toByteArray();

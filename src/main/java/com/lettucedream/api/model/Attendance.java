@@ -55,11 +55,5 @@ public class Attendance {
         this.user = user;
     }
 
-    /*public String getUser_Id() {
-        return user_Id;
-    }
 
-    public void setUser_Id(String user_Id) {
-        this.user_Id = user_Id;
-    }*/
 }
