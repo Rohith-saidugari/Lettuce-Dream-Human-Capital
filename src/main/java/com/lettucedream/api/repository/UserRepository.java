@@ -20,4 +20,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("select t from User t where (t.firstName = :firstname and t.lastName = :lastname and t.dateOfBirth = :dateOfBirth and t.phoneNumber= :phonenumber)")
     User findByNameBirthday(@Param("firstname") String firstname,@Param("lastname") String lastname, @Param("dateOfBirth") Date dateOfBirth, @Param("phonenumber") long phonenumber);
+
+
+
 }

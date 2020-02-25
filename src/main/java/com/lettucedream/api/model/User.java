@@ -1,15 +1,19 @@
 package com.lettucedream.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.lettucedream.api.model.enums.RoleType;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lettucedream.api.model.enums.AttendaneStatus;
 import com.lettucedream.api.model.enums.State;
 import com.lettucedream.api.util.StringPrefixedSequenceIdGenerator;
 // import lombok.Data;
-import lombok.Data;
+//  import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-
+import org.springframework.data.annotation.CreatedDate;
 
 
 import javax.persistence.*;
@@ -17,10 +21,10 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Set;
 
-
 @Entity
 // Lombok data can be used to autogenerate getter setters
-@Data
+//@Data enable this after implementing all features ..
+@NoArgsConstructor
 @Table (name ="users")
 public class User {
     @Id
@@ -37,7 +41,6 @@ public class User {
     private String firstName;
     private String lastName;
     private Date dateOfBirth;
-
     private long phoneNumber;
     private String password;
     // TO DO add organization (fraternity)
@@ -45,34 +48,22 @@ public class User {
     private String city;
     private State state;
     private int zipCode;
+    @CreationTimestamp
+    @Column(name = "created_date")
+    private Date createdDate;
     private AttendaneStatus attendaneStatus = AttendaneStatus.COMPLETE;
     private Date lastLogin = new Date(System.currentTimeMillis());
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Attendance> attandance ;
 
-    /*@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @JoinTable(name="user_role",joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set roles;
+    // I dont want to store image in Database instead i can generate Image using zXingHelper
+    // and inject in the response
+    @Transient
+    private String base64EncodedImage;
 
 
-
-    public Set getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set roles) {
-        this.roles = roles;
-    }
-
-    public User() {
-    }
-
-
-
-
-
-   /* public String getUser_id() {
+    public String getUser_id() {
         return user_id;
     }
 
@@ -81,8 +72,21 @@ public class User {
     }
 
 
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
 
+    public String getBase64EncodedImage() {
+        return base64EncodedImage;
+    }
 
+    public void setBase64EncodedImage(String base64EncodedImage) {
+        this.base64EncodedImage = base64EncodedImage;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
     public String getFirstName() {
         return firstName;
     }
@@ -117,6 +121,9 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+
+    @JsonIgnore
+    @JsonProperty(value = "password")
     public String getPassword() {
         return password;
     }
@@ -181,11 +188,4 @@ public class User {
         this.lastLogin = lastLogin;
     }
 
-    public Set getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set roles) {
-        this.roles = roles;
-    }*/
 }

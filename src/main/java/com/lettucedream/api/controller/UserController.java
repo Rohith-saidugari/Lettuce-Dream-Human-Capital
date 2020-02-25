@@ -2,12 +2,11 @@ package com.lettucedream.api.controller;
 
 
 import com.lettucedream.api.model.User;
-import com.lettucedream.api.model.enums.AttendaneStatus;
-import com.lettucedream.api.responseEntities.UserCreated;
+
 import com.lettucedream.api.service.UserService;
 import com.lettucedream.api.util.CustomErrorType;
-import com.lettucedream.api.util.ZXingHelper;
 
+import com.lettucedream.api.util.ZXingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Date;
 import java.util.Base64;
 import java.util.List;
 
@@ -34,16 +32,12 @@ public class UserController {
     @Autowired
     UserService UserService;
     @Autowired
-    ZXingHelper zXingHelper;
-    @Autowired
     CustomErrorType customErrorType;
     @Autowired
-    UserCreated userCreated;
-
-
+    ZXingHelper zXingHelper;
 
     // Create user Either returns Image or Error message
-    @RequestMapping(value = "/users", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/createuser", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder, HttpServletResponse response) throws IOException {
         logger.info("Creating User : {}", user);
         if (UserService.isUserExist(user)) {
@@ -54,91 +48,61 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).
                     body(customErrorType);
         }
-        String id = UserService.addUser(user).getUser_id();
         HttpHeaders headers = new HttpHeaders();
-        userCreated.SetUserCreatedValues(id,Base64.getEncoder().encodeToString(zXingHelper.getBarCodeImage(id, 500, 100)));
+        User createdUser = UserService.addUser(user);
+        setbarcodeImageData(createdUser);
+        //createdUser.setBase64EncodedImage(Base64.getEncoder().encodeToString(zXingHelper.getBarCodeImage(createdUser.getUser_id(),500,100)));
         headers.setLocation(ucBuilder.path("/api/user/{id}").buildAndExpand(user.getUser_id()).toUri());
         return ResponseEntity.ok()
                 .headers(headers)
-                .body(userCreated);
-
+                .body(createdUser);
     }
 
 
     // Update user profile (Phone Number and Address )
 
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/getuser/{id}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateUser(@PathVariable("id") String id, @RequestBody User user) {
         logger.info("Updating User with id {}", id);
-
-        User currentUser = UserService.getById(id);
-
-        if (currentUser == null) {
+        if (UserService.getById(id) == null) {
             logger.error("Unable to update. User with id {} not found.", id);
             customErrorType.setErrorMessage("Unable to upate. User with id " + id + " not found.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(customErrorType.getErrorMessage());
+                    .body(customErrorType);
         }
         //Cannot Change Name Date of Birth
+        User currentUser = UserService.getById(id);
         currentUser.setPhoneNumber(user.getPhoneNumber());
         currentUser.setStreetAddress(user.getStreetAddress());
         currentUser.setCity(user.getCity());
         currentUser.setState(user.getState());
         currentUser.setZipCode(user.getZipCode());
         UserService.editUser(currentUser);
-        return new ResponseEntity<User>(currentUser, HttpStatus.OK);
+        setbarcodeImageData(currentUser);
+        return ResponseEntity.ok()
+                .body(currentUser);
     }
 
 
     //Get all users
-    @RequestMapping(value = "/users", method = RequestMethod.GET)
+    @RequestMapping(value = "/reportdata", method = RequestMethod.GET)
 
-    public ResponseEntity<List<User>> listAllUsers() {
+    public ResponseEntity<?> listAllUsers() {
         List<User> users = UserService.getAll();
         if (users.isEmpty()) {
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            customErrorType.setErrorMessage("Unable to fetch report data , No report data not found.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(customErrorType);
         }
-        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
-    }
-
-
-
-
-
-
-
-
-
-    //  Below Should go into User Attandance controller
-    // Verify user ID
-
-    //TODO need to change response body content
-
-    @RequestMapping(value="/users/verify", method=RequestMethod.POST)
-
-    public ResponseEntity<?> verifyUser(@RequestParam String userId, UriComponentsBuilder ucBuilder){
-        logger.info("Verifying  Userid : {}", userId);
-        if(UserService.getById(userId)!=null){
-            return new ResponseEntity<String>("Found",HttpStatus.OK);
+        for (User user : users) {
+            setbarcodeImageData(user);
         }
-        else
-            return new ResponseEntity<String>("NotFound",HttpStatus.OK);
+        return ResponseEntity.ok().body(users);
     }
 
 
-
-    // TODO
-    @RequestMapping("/users/clockin")
-    public ResponseEntity<?> clockin(@RequestParam String userId, @RequestParam Date clockin_time, UriComponentsBuilder ucBuilder){
-        logger.info("clock in   Userid : {} , Time : {}", userId,clockin_time);
-        //Clock in if previous clock out was successful;
-        if(UserService.getById(userId).getAttendaneStatus().equals(AttendaneStatus.COMPLETE))
-            return null;
-        else return null;
+    private void setbarcodeImageData(User user) {
+        user.setBase64EncodedImage(Base64.getEncoder().encodeToString(zXingHelper.getBarCodeImage(user.getUser_id(), 500, 100)));
     }
-
-
-
-
 
 }

@@ -4,6 +4,7 @@ import com.lettucedream.api.repository.UserRepository;
 import com.lettucedream.api.model.User;
 import com.lettucedream.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -16,10 +17,16 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository UserRepository;
+    @Autowired
+    private PasswordEncoder bcryptEncoder;
 
     @Override
     public User addUser(User user) {
-        User savedUser = UserRepository.saveAndFlush(user);
+
+        //Adding bcrypt encryption to encode password in database
+        User savedUser =user;
+        savedUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+        UserRepository.saveAndFlush(savedUser);
         return savedUser;
     }
 
@@ -39,7 +46,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // TO DO
+
     @Override
     public User editUser(User user) {
         return  UserRepository.saveAndFlush(user);

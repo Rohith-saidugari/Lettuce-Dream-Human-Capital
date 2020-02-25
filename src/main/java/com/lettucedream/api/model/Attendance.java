@@ -23,6 +23,15 @@ public class Attendance {
     @JsonBackReference
     private User user;
 
+   public Attendance(User user){
+       System.out.println("Created Prototype instance with" +user.getUser_id());
+        this.user = user;
+    }
+
+    public Attendance(){
+
+    }
+
     public long getAttendanceId() {
         return attendanceId;
     }
