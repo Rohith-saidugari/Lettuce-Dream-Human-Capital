@@ -15,11 +15,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 
 @Configuration
 @EnableWebSecurity
+@EnableWebMvc
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
@@ -56,10 +58,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         // We don't need CSRF for this example
         httpSecurity.csrf().disable()
-                // dont authenticate this particular requests /authenticate and user api for attendenece
-                .authorizeRequests().antMatchers("/authenticate","/api/v1/user/**").permitAll().
+                // dont authenticate this particular request pattens
+                // .authorizeRequests().antMatchers("/auth/signin", "/api/v1/user/**").permitAll()
+                // comment above line and uncomment below line if you want to use swagger documentation for api i've developed
+                .authorizeRequests().antMatchers("/auth/signin", "/api/v1/user/**", "/v2/api-docs","/webjars/**","/*","/swagger-resources/**").permitAll()
+                //Only Admin Can Delete Record
+                .antMatchers("/api/v1/admin/**").hasAuthority("ADMIN")
                 // all other requests need to be authenticated
-                        anyRequest().authenticated().and().
+                .anyRequest().authenticated().and().
                 // make sure we use stateless session; session won't be used to
                 // store user's state.
                         exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
@@ -68,5 +74,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Add a filter to validate the tokens with every request
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
+
 }
 

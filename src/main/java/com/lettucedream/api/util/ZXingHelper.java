@@ -23,6 +23,7 @@ public class ZXingHelper {
             Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<>();
             hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
             Writer writer = new Code128Writer();
+            // You can change it to any format
             BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.CODE_128, width, height);
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

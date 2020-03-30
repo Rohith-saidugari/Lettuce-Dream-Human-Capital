@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lettucedream.api.model.enums.AttendaneStatus;
+import com.lettucedream.api.model.enums.Role;
 import com.lettucedream.api.model.enums.State;
 import com.lettucedream.api.util.StringPrefixedSequenceIdGenerator;
 // import lombok.Data;
@@ -13,13 +14,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-import org.springframework.data.annotation.CreatedDate;
 
 
 import javax.persistence.*;
 import java.sql.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 // Lombok data can be used to autogenerate getter setters
@@ -29,6 +28,7 @@ import java.util.Set;
 public class User {
     @Id
     @Column(name="user_id")
+
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "emp_seq")
     @GenericGenerator(
             name = "emp_seq",
@@ -51,6 +51,7 @@ public class User {
     @CreationTimestamp
     @Column(name = "created_date")
     private Date createdDate;
+    private Role role;
     private AttendaneStatus attendaneStatus = AttendaneStatus.COMPLETE;
     private Date lastLogin = new Date(System.currentTimeMillis());
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
@@ -188,4 +189,11 @@ public class User {
         this.lastLogin = lastLogin;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }

@@ -48,6 +48,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).
                     body(customErrorType);
         }
+
         HttpHeaders headers = new HttpHeaders();
         User createdUser = UserService.addUser(user);
         setbarcodeImageData(createdUser);

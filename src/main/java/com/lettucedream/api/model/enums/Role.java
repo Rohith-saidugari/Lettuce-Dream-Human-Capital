@@ -1,5 +1,5 @@
 package com.lettucedream.api.model.enums;
 
-public enum Roles {
+public enum Role {
     ADMIN,INTERN,VOLUNTEER;
 }
