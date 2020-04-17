@@ -1,4 +1,2 @@
-# springBootPOC
-
-A POC project to learn Spring Boot with MVC pattern
+# Backend API for Lettuce Dream
 
