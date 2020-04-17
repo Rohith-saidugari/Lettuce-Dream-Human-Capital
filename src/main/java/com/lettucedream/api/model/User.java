@@ -8,8 +8,7 @@ import com.lettucedream.api.model.enums.AttendaneStatus;
 import com.lettucedream.api.model.enums.Role;
 import com.lettucedream.api.model.enums.State;
 import com.lettucedream.api.util.StringPrefixedSequenceIdGenerator;
-// import lombok.Data;
-//  import lombok.Data;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
@@ -22,13 +21,27 @@ import java.util.List;
 
 @Entity
 // Lombok data can be used to autogenerate getter setters
-//@Data enable this after implementing all features ..
+@Data
 @NoArgsConstructor
 @Table (name ="users")
+/**************************************************************************
+ * @Author: Rohit Saidugari
+ * Description: Model Class user, Each member variable represents an attribute in database table
+ * NOTES:
+ * REVISION HISTORY : None
+ * Date:                           By: Rohit Saidugari          Description:
+ ***************************************************************************/
 public class User {
+    /**
+     * A unique primary key is required for every entity
+     * @Id is used to dennote primay key in models
+     */
     @Id
     @Column(name="user_id")
-
+    /**
+     * a custom auto generated user id has been used for this project
+     * User ID Format LD_XXXXX
+     */
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "emp_seq")
     @GenericGenerator(
             name = "emp_seq",
@@ -48,18 +61,32 @@ public class User {
     private String city;
     private State state;
     private int zipCode;
+    /**
+     * @CreationTimestamp to log date of creation in database
+     */
     @CreationTimestamp
     @Column(name = "created_date")
     private Date createdDate;
     private Role role;
     private AttendaneStatus attendaneStatus = AttendaneStatus.COMPLETE;
     private Date lastLogin = new Date(System.currentTimeMillis());
+    /**
+     * One to many mapping between entiries user and attendance
+     */
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    /**
+     * @JsonManagedReference Annotation used to indicate that annotated property
+     * is part of two-way linkage between fields
+     */
     @JsonManagedReference
     private List<Attendance> attandance ;
 
-    // I dont want to store image in Database instead i can generate Image using zXingHelper
-    // and inject in the response
+    /**
+     * @Transient if you dont want an attribute to be stored in DB , you can use this annotation
+     * I dont want to store image in Database instead i can generate Image using zXingHelper
+     *  and inject in the response
+     */
+
     @Transient
     private String base64EncodedImage;
 
@@ -123,6 +150,11 @@ public class User {
     }
 
 
+    /**
+     * We dont want to return password in any case . To make api does not return password
+     * use JsonIgnore annotation
+     * @return
+     */
     @JsonIgnore
     @JsonProperty(value = "password")
     public String getPassword() {

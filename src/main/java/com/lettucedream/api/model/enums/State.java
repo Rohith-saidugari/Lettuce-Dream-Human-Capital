@@ -1,5 +1,12 @@
 package com.lettucedream.api.model.enums;
 
+/**************************************************************************
+ * @Author: Rohit Saidugari
+ * Description: Enum representing list of states
+ * NOTES:
+ * REVISION HISTORY : None
+ * Date:                           By: Rohit Saidugari          Description:
+ ***************************************************************************/
 public enum State {
     Alabama, Alaska, Arizona, Arkansas, California, Colorado, Connecticut, Delaware, Florida, Georgia, Hawaii, Idaho, Illinois, Indiana,
     Iowa, Kansas, Kentucky, Louisiana, Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi, Missouri, Montana, Nebraska, Nevada,

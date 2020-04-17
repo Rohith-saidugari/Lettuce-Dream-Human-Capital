@@ -1,7 +1,15 @@
 package com.lettucedream.api.model;
 
 import java.io.Serializable;
-
+/**************************************************************************
+ * @Author: Rohit Saidugari
+ * Description: This model is a part of authetication getter and setters has bee used in
+ * JWT token generation and verification.
+ * I dont want to store any token in DB , thats the reason why you dont see @Entity @Id in this class
+ * NOTES: Its just a helper class model
+ * REVISION HISTORY : None
+ * Date:                           By: Rohit Saidugari          Description:
+ ***************************************************************************/
 public class JwtRequest implements Serializable {
 
     private static final long serialVersionUID = 5926468583005150707L;

@@ -5,6 +5,14 @@ import com.lettucedream.api.model.User;
 import java.sql.Date;
 import java.util.List;
 
+/**************************************************************************
+ * @Author: Rohit Saidugari
+ * Description: This interface describes what  operations we can perform
+ * for a particular model on database
+ * NOTES:
+ * REVISION HISTORY : None
+ * Date:                           By: Rohit Saidugari          Description:
+ ***************************************************************************/
 
 public interface UserService {
 
